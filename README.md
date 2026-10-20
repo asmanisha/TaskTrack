@@ -116,4 +116,4 @@ GitHub: https://github.com/asmanisha/TaskTrack
 A learning project focused on practical mobile application development with React Native and Expo.
 
 ## App Screenshot
-![TaskTrack App](https://github.com/asmanisha/TaskTrack/blob/master/task%20track.jpeg)
+![TaskTrack App](https://github.com/asmanisha/TaskTrack/blob/master/TaskTrack.jpeg)
