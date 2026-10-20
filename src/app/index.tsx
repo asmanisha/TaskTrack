@@ -1,98 +1,299 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+  const [task, setTask] = useState("");
+  const [tasks, setTasks] = useState<string[]>([]);
+  const [completedTasks, setCompletedTasks] = useState<string[]>([]);
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+  useEffect(() => {
+  const loadData = async () => {
+    const savedTasks = await AsyncStorage.getItem("tasks");
+    const savedCompletedTasks =
+      await AsyncStorage.getItem("completedTasks");
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    }
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    if (savedCompletedTasks) {
+      setCompletedTasks(JSON.parse(savedCompletedTasks));
+    }
+  };
+
+  loadData();
+}, []);
+
+  const addTask = async () => {
+  if (task.trim() === "") {
+    Alert.alert("Invalid Task", "Please enter a task.");
+    return;
+  }
+
+  const newTask = task.trim();
+  const updatedTasks = [...tasks, newTask];
+
+  setTasks(updatedTasks);
+  setTask("");
+
+  await AsyncStorage.setItem(
+    "tasks",
+    JSON.stringify(updatedTasks)
   );
+};
+
+   const toggleTask = async (taskName: string) => {
+  let updatedCompletedTasks;
+
+  if (completedTasks.includes(taskName)) {
+    updatedCompletedTasks = completedTasks.filter(
+      (item) => item !== taskName
+    );
+  } else {
+    updatedCompletedTasks = [...completedTasks, taskName];
+  }
+
+  setCompletedTasks(updatedCompletedTasks);
+
+  await AsyncStorage.setItem(
+    "completedTasks",
+    JSON.stringify(updatedCompletedTasks)
+  );
+};
+
+const deleteTask = async (taskName: string) => {
+  const updatedTasks = tasks.filter(
+    (item) => item !== taskName
+  );
+
+  const updatedCompletedTasks = completedTasks.filter(
+    (item) => item !== taskName
+  );
+
+  setTasks(updatedTasks);
+  setCompletedTasks(updatedCompletedTasks);
+
+  await AsyncStorage.setItem(
+    "tasks",
+    JSON.stringify(updatedTasks)
+  );
+  
+
+  await AsyncStorage.setItem(
+    "completedTasks",
+    JSON.stringify(updatedCompletedTasks)
+  );
+  
+};
+
+  const clearAllTasks = async () => {
+  Alert.alert(
+    "Clear All Tasks",
+    "Are you sure you want to delete all tasks?",
+    [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Clear All",
+        style: "destructive",
+        onPress: async () => {
+          setTasks([]);
+          setCompletedTasks([]);
+
+          await AsyncStorage.removeItem("tasks");
+          await AsyncStorage.removeItem("completedTasks");
+        },
+      },
+    ]
+  );
+};
+
+  return (
+  <View style={styles.container}>
+    <Text style={styles.title}>TaskTrack</Text>
+
+    <Text style={styles.subtitle}>
+      My Tasks • {tasks.length} tasks • {completedTasks.length} completed
+    </Text>
+
+    <TextInput
+      style={styles.input}
+      placeholder="Enter a task"
+      value={task}
+      onChangeText={setTask}
+    />
+
+    <Pressable style={styles.button} onPress={addTask}>
+      <Text style={styles.buttonText}>Add Task</Text>
+    </Pressable>
+
+    {tasks.length === 0 ? (
+      <Text style={styles.emptyText}>No tasks yet</Text>
+    ) : (
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={tasks}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.taskItem}>
+              <Pressable
+                style={styles.taskContent}
+                onPress={() => toggleTask(item)}
+              >
+                <Text
+                  style={[
+                    styles.taskText,
+                    completedTasks.includes(item) &&
+                      styles.completedTask,
+                  ]}
+                >
+                  {completedTasks.includes(item) ? "✓ " : "☐ "}
+                  {item}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.deleteButton}
+                onPress={() => {
+                  Alert.alert(
+                    "Delete Task",
+                    `Are you sure you want to delete "${item}"?`,
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
+                      },
+                      {
+                        text: "Delete",
+                        style: "destructive",
+                        onPress: () => deleteTask(item),
+                      },
+                    ]
+                  );
+                }}
+              >
+                <Text style={styles.deleteText}>🗑️</Text>
+              </Pressable>
+            </View>
+          )}
+        />
+
+        <Pressable
+          style={styles.clearButton}
+          onPress={clearAllTasks}
+        >
+          <Text style={styles.clearButtonText}>
+            Clear All Tasks
+          </Text>
+        </Pressable>
+      </View>
+    )}
+  </View>
+);
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    padding: 20,
+    paddingTop: 60,
+    backgroundColor: "#ffffff",
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
+
   title: {
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: "bold",
   },
-  code: {
-    textTransform: 'uppercase',
+
+  subtitle: {
+    fontSize: 20,
+    marginTop: 20,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  emptyText: {
+    fontSize: 16,
+    marginTop: 30,
+    color: "gray",
+    textAlign: "center",
   },
+
+  input: {
+  borderWidth: 1,
+  borderColor: "#cccccc",
+  borderRadius: 8,
+  padding: 12,
+  marginTop: 25,
+  fontSize: 16,
+},
+
+button: {
+  backgroundColor: "#333333",
+  padding: 12,
+  borderRadius: 8,
+  marginTop: 10,
+  alignItems: "center",
+},
+
+buttonText: {
+  color: "#ffffff",
+  fontSize: 16,
+  fontWeight: "bold",
+},
+
+taskItem: {
+  padding: 15,
+  marginTop: 10,
+  backgroundColor: "#f2f2f2",
+  borderRadius: 8,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+},
+
+taskText: {
+  fontSize: 16,
+},
+
+completedTask: {
+  textDecorationLine: "line-through",
+  color: "gray",
+},
+
+taskContent: {
+  flex: 1,
+},
+
+deleteButton: {
+  padding: 8,
+},
+
+deleteText: {
+  color: "red",
+  fontWeight: "bold",
+},
+
+clearButton: {
+  marginTop: 15,
+  padding: 12,
+  borderRadius: 8,
+  alignItems: "center",
+  borderWidth: 1,
+  borderColor: "#cccccc",
+},
+
+clearButtonText: {
+  fontSize: 16,
+  fontWeight: "bold",
+},
 });
