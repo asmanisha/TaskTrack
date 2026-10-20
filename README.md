@@ -1,56 +1,117 @@
-# Welcome to your Expo app 👋
+# TaskTrack – Mobile Task Manager
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+TaskTrack is a mobile task management application built using React Native and Expo. It helps users organize their daily tasks, track completed activities, and manage tasks through a simple and user-friendly interface.
 
-## Get started
+This project was developed to gain practical experience in mobile application development, local data persistence, debugging, and Android APK generation.
 
-1. Install dependencies
+## Features
+
+- **Add Tasks:** Create tasks with input validation.
+- **Complete Tasks:** Mark tasks as completed or switch them back to pending.
+- **Delete Tasks:** Remove individual tasks with a confirmation prompt.
+- **Clear All Tasks:** Remove all tasks after confirmation.
+- **Task Counter:** View the total number of tasks and the number completed.
+- **Persistent Local Storage:** Save tasks and completion status using AsyncStorage.
+- **Simple User Interface:** Use a clean interface designed with React Native components.
+- **Android APK Build:** Configure and generate an installable Android APK using EAS Build.
+
+## Technologies Used
+
+- React Native
+- TypeScript
+- Expo
+- Expo Router
+- React Hooks (`useState` and `useEffect`)
+- AsyncStorage
+- Git and GitHub
+- EAS Build
+
+## Getting Started
+
+### Prerequisites
+
+Install the following tools before running the project:
+
+- Node.js and npm
+- Git
+- Expo Go on your mobile device, or an Android emulator
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/asmanisha/TaskTrack.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```bash
+   cd TaskTrack
+   ```
+
+3. Install the project dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+4. Start the Expo development server:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. Open the app using Expo Go or an Android emulator, following the instructions displayed in the terminal.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Data Storage
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+TaskTrack uses AsyncStorage to store tasks and their completion status locally on the device. The saved information remains available when the app is closed and reopened.
 
-## Get a fresh project
+**Note:** Task data is stored separately on each device. The application does not currently provide cloud storage or synchronization between users' devices.
 
-When you're ready, run:
+## Testing and Usage
+
+I use TaskTrack on my own phone and have shared the application with friends and family to use and test on their devices.
+
+This real-device usage has helped me understand the importance of testing mobile applications beyond the development environment.
+
+## Android APK Build
+
+The project is configured to use Expo Application Services (EAS) Build to generate an Android APK.
+
+To start an APK build using the configured preview profile:
 
 ```bash
-npm run reset-project
+eas build --platform android --profile preview
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Once the cloud build completes, use the APK link provided by Expo to install the application on a compatible Android device.
 
-### Other setup steps
+## Key Learnings
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Through this project, I gained practical experience with:
 
-## Learn more
+- Building mobile interfaces using React Native.
+- Managing component state with React Hooks.
+- Displaying dynamic task lists using FlatList.
+- Handling user input, validation, and confirmation alerts.
+- Persisting application data using AsyncStorage.
+- Debugging application and configuration issues.
+- Using Git and GitHub for source code management.
+- Configuring EAS Build for Android APK generation.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Future Improvements
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Possible future enhancements include cloud synchronization, user authentication, task reminders, and task categorization.
 
-## Join the community
+## Repository
 
-Join our community of developers creating universal apps.
+GitHub: https://github.com/asmanisha/TaskTrack
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+**Developed by Manisha S**
+
+A learning project focused on practical mobile application development with React Native and Expo.
+
